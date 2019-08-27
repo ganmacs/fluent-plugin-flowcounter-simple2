@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 #
 # Copyright 2019- Yuta Iwama
 #
@@ -13,12 +15,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require "fluent/plugin/output"
+require 'fluent/plugin/output'
 
 module Fluent
   module Plugin
     class FlowcounterOut < Fluent::Plugin::Output
-      Fluent::Plugin.register_output("flowcounter", self)
+      Fluent::Plugin.register_output('flowcounter', self)
     end
   end
 end
