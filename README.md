@@ -2,14 +2,14 @@
 
 [Fluentd](https://fluentd.org/) out plugin to do something.
 
-TODO: write description for you plugin.
+Similar to https://github.com/sonots/fluent-plugin-flowcounter-simple but this gem is for fluentd v1 or later.
 
 ## Installation
 
 ### RubyGems
 
 ```
-$ gem install fluent-plugin-flowcounter
+$ gem install fluent-plugin-flowcounter-simple2
 ```
 
 ### Bundler
@@ -17,7 +17,7 @@ $ gem install fluent-plugin-flowcounter
 Add following line to your Gemfile:
 
 ```ruby
-gem "fluent-plugin-flowcounter"
+gem "fluent-plugin-flowcounter-simple2"
 ```
 
 And then execute:
@@ -28,13 +28,7 @@ $ bundle
 
 ## Configuration
 
-You can generate configuration template:
-
-```
-$ fluent-plugin-config-format out flowcounter
-```
-
-You can copy and paste generated documents here.
+See [examples directory](./examples)
 
 ## Copyright
 

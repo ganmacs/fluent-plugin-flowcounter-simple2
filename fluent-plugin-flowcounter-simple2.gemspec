@@ -4,14 +4,14 @@ lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
-  spec.name    = 'fluent-plugin-flowcounter'
+  spec.name    = 'fluent-plugin-flowcounter-simple2'
   spec.version = '0.1.0'
   spec.authors = ['Yuta Iwama']
   spec.email   = ['ganmacs@gmail.com']
 
   spec.summary       = 'text'
   spec.description   = 'text'
-  spec.homepage      = 'http://github.com/ganmacs'
+  spec.homepage      = 'http://github.com/ganmacs/fluent-plugin-flowcounter_simple2'
   spec.license       = 'Apache-2.0'
 
   test_files, files  = `git ls-files -z`.split("\x0").partition do |f|

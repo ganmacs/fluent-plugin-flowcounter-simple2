@@ -16,11 +16,28 @@
 # limitations under the License.
 
 require 'fluent/plugin/output'
+require_relative './flowcounter_simple2_helper'
 
 module Fluent
   module Plugin
     class FlowcounterOut < Fluent::Plugin::Output
-      Fluent::Plugin.register_output('flowcounter', self)
+      Fluent::Plugin.register_output('flowcounter_simple2', self)
+
+      include Fluent::Plugin::FlowcounterSimple2Helper
+      config_set_default :comment, 'out_flowcounter'
+
+      def multi_workers_ready?
+        true
+      end
+
+      def write(chunk)
+        flowcounter_out_count(chunk)
+      end
+
+      def try_write(chunk)
+        flowcounter_out_count(chunk)
+        commit_write(chunk.unique_id)
+      end
     end
   end
 end
