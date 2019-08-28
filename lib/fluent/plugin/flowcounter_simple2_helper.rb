@@ -117,6 +117,16 @@ module Fluent
         end
       end
 
+      def flowcounter_input_count(record)
+        flowcounter_filter_count(record)
+      end
+
+      def flowcounter_input_count2(c)
+        @mutex.synchronize do
+          @count += c
+        end
+      end
+
       def flowcounter_log
         count = 0
         @mutex.synchronize do
