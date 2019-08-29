@@ -27,6 +27,7 @@ module Fluent
         klass.config_param :indicator, :string, default: 'num'
         klass.config_param :unit, :string, default: 'second'
         klass.config_param :comment, :string
+        klass.config_param :machine_stats, :bool, default: true
       end
 
       UNIT_TABLE = {
@@ -39,7 +40,7 @@ module Fluent
       def initialize(*)
         super
 
-        @stats = Fluent::Plugin::Stats.new($log)
+        @stats = Fluent::Plugin::Stats.new($log, machine_stats: @machine_stats)
         @count = 0
         @mutex = Mutex.new
       end

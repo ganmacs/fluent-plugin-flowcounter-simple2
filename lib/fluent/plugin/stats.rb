@@ -16,46 +16,48 @@
 # limitations under the License.
 
 require 'fluent/plugin/output'
+require 'get_process_mem'
 
 module Fluent::Plugin
   class Stats
-    def initialize(log)
-      @count = 0
-      @num = 0
-      @total = 0
-      @max = 0
-      @min = 100000000
-      @p = []
+    def initialize(log, machine_stats: true)
+      @stats = []
+      @mem = []
+
       @log = log
+      @machine_stats = machine_stats
     end
 
     def inc(r)
       unless r.zero?
-        @p << r
-        if @max < r
-          @max = r
-        end
+        @stats << r
 
-        if @min > r
-          @min = r
+        if @machine_stats
+          @mem << GetProcessMem.new.mb
         end
-
-        @total += r
-        @num += 1
       end
     end
 
     def cal
-      txt = "flowcounter_simple2_total\tsample:#{@num}\tmax:#{@max}\tmin:#{@min}\t"
-      if @num != 0
-        txt += "avg:#{@total/@num}\t"
+      size = @stats.size
+      if size < 0
+        return
       end
 
-      @p.sort!
-      s = @p.size
-      unless @p.empty?
-        txt += "p10:#{@p[(s * 0.1).to_i]}\tp50:#{@p[(s * 0.5).to_i]}\tp80:#{@p[(s * 0.8).to_i]}\tp90:#{@p[(s * 0.9).to_i]}\tp95:#{@p[(s * 0.95).to_i]}\tp98:#{@p[(s * 0.98).to_i]}"
+      txt = "flowcounter_simple2_total\tsample:#{size}\tmax:#{@stats.max}\tmin:#{@stats.min}"
+      total = @stats.reduce(0, &:+)
+      txt += "\tavg:#{total/size}"
+
+      @stats.sort!
+      unless @stats.empty?
+        txt += "\tp10:#{@stats[(size * 0.1).to_i]}\tp50:#{@stats[(size * 0.5).to_i]}\tp80:#{@stats[(size * 0.8).to_i]}\tp90:#{@stats[(size * 0.9).to_i]}\tp95:#{@stats[(size * 0.95).to_i]}\tp98:#{@stats[(size * 0.98).to_i]}"
       end
+
+      if @machine_stats
+        t = @mem.reduce(0, &:+) / @mem.size
+        txt += "\tmem_avg:#{t}MB"
+      end
+
       @log.info(txt)
     end
   end
