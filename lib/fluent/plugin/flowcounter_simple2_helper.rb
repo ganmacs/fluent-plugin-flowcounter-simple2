@@ -15,6 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+require_relative './stats'
+
 module Fluent
   module Plugin
     module FlowcounterSimple2Helper
@@ -37,6 +39,7 @@ module Fluent
       def initialize(*)
         super
 
+        @stats = Fluent::Plugin::Stats.new($log)
         @count = 0
         @mutex = Mutex.new
       end
@@ -138,7 +141,13 @@ module Fluent
           return
         end
 
+        @stats.inc(count)
         log.info(@flowcounter_output_proc.call(count))
+      end
+
+      def stop
+        @stats.cal
+        super
       end
     end
   end
