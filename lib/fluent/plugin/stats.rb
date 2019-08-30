@@ -20,12 +20,22 @@ require 'get_process_mem'
 
 module Fluent::Plugin
   class Stats
-    def initialize(log, machine_stats: true)
+    def initialize(log, machine_stats: true, file_path: '')
       @stats = []
       @mem = []
 
       @log = log
       @machine_stats = machine_stats
+      unless file_path.empty?
+        require 'json'
+        require 'pathname'
+        require 'fileutils'
+        file_path = Pathname(file_path)
+        # FIXME
+        FileUtils.mkdir_p(file_path.dirname)
+        @name = file_path.basename.to_s.gsub('.json', '')
+        @file_path = file_path
+      end
     end
 
     def inc(r)
@@ -44,21 +54,36 @@ module Fluent::Plugin
         return
       end
 
-      txt = "flowcounter_simple2_total\tsample:#{size}\tmax:#{@stats.max}\tmin:#{@stats.min}"
       total = @stats.reduce(0, &:+)
-      txt += "\tavg:#{total/size}"
+
+      ret = {
+        smaple: size,
+        max: @stats.max,
+        min: @stats.min,
+        avg: total / size,
+      }
 
       @stats.sort!
       unless @stats.empty?
-        txt += "\tp10:#{@stats[(size * 0.1).to_i]}\tp50:#{@stats[(size * 0.5).to_i]}\tp80:#{@stats[(size * 0.8).to_i]}\tp90:#{@stats[(size * 0.9).to_i]}\tp95:#{@stats[(size * 0.95).to_i]}\tp98:#{@stats[(size * 0.98).to_i]}"
+        ret.merge!(
+          p10: @stats[(size * 0.1).to_i],
+          p50: @stats[(size * 0.5).to_i],
+          p80: @stats[(size * 0.8).to_i],
+          p90: @stats[(size * 0.90).to_i],
+          p98: @stats[(size * 0.98).to_i],
+        )
       end
 
       if @machine_stats
         t = @mem.reduce(0, &:+) / @mem.size
-        txt += "\tmem_avg:#{t}MB"
+        ret[:mem_avg] = "#{t}MB"
       end
 
-      @log.info(txt)
+      if @file_path
+        File.write(@file_path, ret.merge(name: @name).to_json)
+      end
+
+      @log.info("flowcounter_simple2_total\t" + ret.map { |k, v| "#{k}:#{v}" }.join("\t"))
     end
   end
 end

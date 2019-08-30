@@ -28,6 +28,7 @@ module Fluent
         klass.config_param :unit, :string, default: 'second'
         klass.config_param :comment, :string
         klass.config_param :machine_stats, :bool, default: true
+        klass.config_param :dump_file_path, :string, default: ''
       end
 
       UNIT_TABLE = {
@@ -37,10 +38,10 @@ module Fluent
         day: 60 * 60 * 24,
       }.freeze
 
-      def initialize(*)
+      def initialize
         super
 
-        @stats = Fluent::Plugin::Stats.new($log, machine_stats: @machine_stats)
+        @stats = nil
         @count = 0
         @mutex = Mutex.new
       end
@@ -51,6 +52,8 @@ module Fluent
 
       def configure(conf)
         super
+
+        @stats = Fluent::Plugin::Stats.new($log, machine_stats: @machine_stats, file_path: @dump_file_path)
 
         @flowcounter_indicator_proc =
           case @indicator
